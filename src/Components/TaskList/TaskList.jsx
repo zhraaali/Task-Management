@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { deleteTask, fetchTodo,reorderTasks } from '../../features/TaskSlice'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import SortableTask from '../SortableTask/SortableTask'; // استيراد المكون الجديد
-import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext,TouchSensor, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
 
 const TaskList = () => {
     const tasks = useSelector((state) => state.tasks.tasks)
@@ -20,6 +20,14 @@ const TaskList = () => {
         useSensor(PointerSensor, {
             activationConstraint: {
                 distance: 5, // يبدأ السحب بعد تحريك الماوس 5 بكسل (لمنع السحب بالخطأ عند الضغط)
+            },
+        }),
+        useSensor(TouchSensor, {
+            // هذه الخاصية ضرورية جداً للموبايل
+            // تمنع السحب من التداخل مع التمرير الطبيعي للشاشة
+            activationConstraint: {
+                delay: 250, // اضغط لمدة ربع ثانية ليبدأ السحب
+                tolerance: 5, // مقدار الخطأ المسموح به في حركة الإصبع قبل الإلغاء
             },
         }),
         useSensor(KeyboardSensor, {

@@ -16,6 +16,7 @@ const SortableTask = ({ task, handleDelete }) => {
     const style = {
         transition,
         transform: CSS.Transform.toString(transform),
+        touchAction: 'none',
         // إضافة تنسيق بسيط عند السحب (اختياري)
         zIndex: isDragging ? 10 : 1,
         opacity: isDragging ? 0.5 : 1,
