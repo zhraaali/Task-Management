@@ -1,5 +1,7 @@
 # 🚀 Task Manager Pro - TypeScript Version
+<img width="1905" height="912" alt="Image" src="https://github.com/user-attachments/assets/ced1a91d-0f93-4a4a-9c77-6813bfa82a2c" />
 
+<img width="1912" height="920" alt="Image" src="https://github.com/user-attachments/assets/98bd9399-25a8-499d-a568-b7424c89c87f" />
 هذا المشروع هو تطبيق متطور لإدارة المهام، تم بناؤه باستخدام **React** و **TypeScript** مع التركيز على الأداء العالي والأمان البرمجي.
 
 
@@ -22,3 +24,6 @@
 1. قم بتحميل المشروع:
    ```bash
    git clone [https://github.com/zhraaali/Task-Management.git](https://github.com/zhraaali/Task-Management.git)
+   "Data Management":
+
+Data Persistence: The app synchronizes the state with localStorage on every change (Add, Edit, Reorder, Delete). On application load, the state is re-hydrated from the local storage to provide a seamless offline-first experience.

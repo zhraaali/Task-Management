@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { arrayMove } from '@dnd-kit/sortable';
 
-// 1. تعريف شكل المهمة الواحدة
 export interface Task {
     id: number | string;
     title: string;
@@ -9,7 +8,6 @@ export interface Task {
     status: "To Do" | "Completed" | string;
 }
 
-// 2. تعريف شكل الحالة في Redux
 interface TaskState {
     tasks: Task[];
     loading: boolean;
@@ -17,19 +15,33 @@ interface TaskState {
     status: string;
 }
 
+// 1. دالة مساعدة لجلب البيانات من التخزين المحلي عند تشغيل التطبيق
+const loadTasksFromLocalStorage = (): Task[] => {
+    try {
+        const savedTasks = localStorage.getItem('my_tasks');
+        return savedTasks ? JSON.parse(savedTasks) : [];
+    } catch (e) {
+        return [];
+    }
+};
+
+// 2. دالة مساعدة لحفظ البيانات (سنستدعيها داخل كل Reducer)
+const saveToLocalStorage = (tasks: Task[]) => {
+    localStorage.setItem('my_tasks', JSON.stringify(tasks));
+};
+
 const initialState: TaskState = {
-    tasks: [],
+    tasks: loadTasksFromLocalStorage(), // يبدأ التطبيق بالبيانات المحفوظة
     loading: false,
     error: null,
     status: "All"
 };
 
-// 3. تعديل الـ AsyncThunk (تحديد نوع البيانات المرجعة)
 export const fetchTodo = createAsyncThunk<Task[]>('tasks/fetchTodo', async () => {
+    // جلب البيانات فقط إذا كان التخزين المحلي فارغاً (اختياري - لتعزيز تجربة المستخدم)
     const response = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=5');
     const data = await response.json();
     
-    // تأكد من مطابقة البيانات القادمة من API لشكل Task لدينا
     return data.map((task: any): Task => ({
         id: task.id,
         title: task.title,
@@ -42,17 +54,19 @@ const taskSlice = createSlice({
     name: 'tasks',
     initialState,
     reducers: {
-        // استخدام PayloadAction لتحديد نوع البيانات القادمة في الـ Dispatch
         addTask: (state, action: PayloadAction<Task>) => {
             state.tasks.push(action.payload);
+            saveToLocalStorage(state.tasks); // حفظ التغيير
         },
         editTask: (state, action: PayloadAction<Task>) => {
             state.tasks = state.tasks.map(task =>
                 task.id === action.payload.id ? action.payload : task
             );
+            saveToLocalStorage(state.tasks); // حفظ التغيير
         },
         deleteTask: (state, action: PayloadAction<number | string>) => {
             state.tasks = state.tasks.filter(task => task.id !== action.payload);
+            saveToLocalStorage(state.tasks); // حفظ التغيير
         },
         reorderTasks: (state, action: PayloadAction<{ activeId: string | number; overId: string | number }>) => {
             const { activeId, overId } = action.payload;
@@ -61,6 +75,7 @@ const taskSlice = createSlice({
             
             if (oldIndex !== -1 && newIndex !== -1) {
                 state.tasks = arrayMove(state.tasks, oldIndex, newIndex);
+                saveToLocalStorage(state.tasks); // حفظ الترتيب الجديد
             }
         }
     },
@@ -72,7 +87,11 @@ const taskSlice = createSlice({
             })
             .addCase(fetchTodo.fulfilled, (state, action: PayloadAction<Task[]>) => {
                 state.loading = false;
-                state.tasks = action.payload;
+                // إذا كان التخزين المحلي فارغاً فقط، نملؤه ببيانات الـ API
+                if (state.tasks.length === 0) {
+                    state.tasks = action.payload;
+                    saveToLocalStorage(state.tasks);
+                }
             })
             .addCase(fetchTodo.rejected, (state, action) => {
                 state.loading = false;
