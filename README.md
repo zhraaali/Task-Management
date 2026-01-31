@@ -21,4 +21,4 @@
 ## 🚀 كيفية التشغيل محلياً
 1. قم بتحميل المشروع:
    ```bash
-   git clone [https://github.com/username/your-repo-name.git](https://github.com/username/your-repo-name.git)
+   git clone [https://github.com/zhraaali/Task-Management.git](https://github.com/zhraaali/Task-Management.git)
